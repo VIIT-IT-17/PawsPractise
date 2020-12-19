@@ -10,6 +10,5 @@ app.use("/api/users", userRouter)
 const PORT = process.env.APP_PORT || 8080;
 
 app.listen(PORT,()=>{
-    // fghjkl;
     console.log("Server Up And Running On Port: ",PORT);
 });

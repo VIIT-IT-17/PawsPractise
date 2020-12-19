@@ -1,6 +1,8 @@
-const { create, getUserById, getUsers, UpdateUser, DeleteUser } = require("./user_service");
+const { create, getUserById, getUsers, UpdateUser, DeleteUser, LoginUser } = require("./user_service");
 
-const {genSaltSync,hashSync} = require("bcrypt");
+const {genSaltSync,hashSync,compareSync} = require("bcrypt");
+
+const { sign } = require("jsonwebtoken");
 
 module.exports = {
     createUser: (req,res)=>{
@@ -103,6 +105,44 @@ module.exports = {
                 message:"user deleted successfully"
             });
         });
-    }
+    },
+ 
+    LoginUser : (req,res) => {
+        const body = req.body;
+        LoginUser(body.email, (err,results) => {
+            if(err){
+                console.log(err);
+            }
+            if(!results){
+                return res.json({
+                    success : 0,
+                    data : "Invalid email or password"
+                });
+            }
+            console.log(results);
+            const result = compareSync(body.password,results[0].password);
+            console.log(body.password);
+            console.log(results[0].password);
+            console.log(result);
+            if(result){
+                result.password = undefined;
+                const jsontoken = sign({ result: results}, "pawsproject", {
+                    expiresIn : "1h"
+                });
+                return res.json({
+                    success:1,
+                    message:"Logged in Successfully",
+                    token: jsontoken
+                });
+            }
+            else{
+                return res.json({
+                    success:0,
+                    data : "Invalid Email or Password"
+                });
+            }
+        } );
+    },
+
 
 }
